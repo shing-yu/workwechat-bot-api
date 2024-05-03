@@ -19,18 +19,21 @@ app = FastAPI()
 class Message(BaseModel):
     token: str
     content: str
+    touid: str = "@all"
 
 
 class Image(BaseModel):
     token: str
     image_base64: str
+    touid: str = "@all"
 
 
 @app.post("/send_message")
 async def send_message(message: Message):
     if message.token != token:
         raise HTTPException(status_code=403, detail="Token错误")
-    response = wec.send_message(message.content, enterprise_id, application_id, application_secret)
+    touid = message.touid
+    response = wec.send_message(message.content, enterprise_id, application_id, application_secret, touid)
     if response:
         # return {"client_status": "success", **response}
         return response
@@ -42,7 +45,8 @@ async def send_message(message: Message):
 async def send_image(image: Image):
     if image.token != token:
         raise HTTPException(status_code=403, detail="Token错误")
-    response = wec.send_image(image.image_base64, enterprise_id, application_id, application_secret)
+    touid = image.touid
+    response = wec.send_image(image.image_base64, enterprise_id, application_id, application_secret, touid)
     if response:
         # return {"client_status": "success", **response}
         return response
@@ -54,7 +58,8 @@ async def send_image(image: Image):
 async def send_markdown(message: Message):
     if message.token != token:
         raise HTTPException(status_code=403, detail="Token错误")
-    response = wec.send_markdown(message.content, enterprise_id, application_id, application_secret)
+    touid = message.touid
+    response = wec.send_markdown(message.content, enterprise_id, application_id, application_secret, touid)
     if response:
         # return {"client_status": "success", **response}
         return response
