@@ -1,0 +1,8 @@
+[Unit]
+Description=A Python script that runs a workwechat bot api.
+After=network.target
+
+[Service]
+WorkingDirectory=/path/to/your/project
+ExecStart=/usr/bin/python3 /path/to/your/project/botapi.py
+Restart=always
