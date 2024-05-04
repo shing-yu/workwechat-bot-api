@@ -1,5 +1,5 @@
 # workwechat-bot-api
-一个基于[wecomchan](https://github.com/easychen/wecomchan)，使用python，fastapi实现的企业微信机器人接口
+一个基于[wecomchan](https://github.com/easychen/wecomchan)，使用python，fastapi实现的企业微信机器人API接口
 
 ## 运行方式
 1. 安装依赖
@@ -15,9 +15,9 @@ python botapi.py
 ```
 3. （可选）加入到systemd（Linux）
 ```shell
-vim wwcbotapi.service  # 替换 /path/to/your/project 为项目文件根目录的绝对路径 
-sudo cp wwcbotapi.service /etc/systemd/system/botapi.service
+vim wecombotapi.service  # 替换 /path/to/your/project 为项目文件根目录的绝对路径 
+sudo cp wecombotapi.service /etc/systemd/system/wecombotapi.service
 sudo systemctl daemon-reload
-sudo systemctl start botapi
-sudo systemctl enable botapi  # 开机自启
+sudo systemctl start wecombotapi
+sudo systemctl enable wecombotapi  # 开机自启
 ```
