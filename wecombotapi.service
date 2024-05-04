@@ -6,3 +6,6 @@ After=network.target
 WorkingDirectory=/path/to/your/project
 ExecStart=/usr/bin/python3 /path/to/your/project/botapi.py
 Restart=always
+
+[Install]
+WantedBy=multi-user.target
