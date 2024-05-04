@@ -1,13 +1,14 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from urllib.parse import unquote
 from config import config
 import wecomchan as wec
 import os
 import uvicorn
 
 # 从环境变量中获取配置，如果没有则使用config.py中的配置
-token = os.getenv("TOKEN", config["token"])
+tokenV = os.getenv("TOKEN", config["token"])
 enterprise_id = os.getenv("ENTERPRISE_ID", config["enterprise_id"])
 application_id = os.getenv("APPLICATION_ID", config["application_id"])
 application_secret = os.getenv("APPLICATION_SECRET", config["application_secret"])
@@ -29,9 +30,18 @@ class Image(BaseModel):
     touid: str = "@all"
 
 
+class Card(BaseModel):
+    token: str
+    title: str
+    description: str
+    url: str
+    btntxt: str = "详情"
+    touid: str = "@all"
+
+
 @app.post("/sendmessage")
 async def send_message(message: Message):
-    if message.token != token:
+    if message.token != tokenV:
         raise HTTPException(status_code=403, detail="Token错误")
     touid = message.touid
     response = wec.send_message(message.content, enterprise_id, application_id, application_secret, touid)
@@ -44,7 +54,7 @@ async def send_message(message: Message):
 
 @app.post("/sendimage")
 async def send_image(image: Image):
-    if image.token != token:
+    if image.token != tokenV:
         raise HTTPException(status_code=403, detail="Token错误")
     touid = image.touid
     # 移除Base64编码中的前缀
@@ -62,10 +72,39 @@ async def send_image(image: Image):
 
 @app.post("/sendmarkdown")
 async def send_markdown(message: Message):
-    if message.token != token:
+    if message.token != tokenV:
         raise HTTPException(status_code=403, detail="Token错误")
     touid = message.touid
     response = wec.send_markdown(message.content, enterprise_id, application_id, application_secret, touid)
+    if response:
+        # return {"client_status": "success", **response}
+        return response
+    else:
+        raise HTTPException(status_code=500, detail="发送失败，请查看控制台输出")
+
+
+@app.post("/sendfile")
+async def send_file(token: str, touid: str = "@all", file: UploadFile = File(...)):
+    if token != tokenV:
+        raise HTTPException(status_code=403, detail="Token错误")
+    f = await file.read()
+    name = file.filename
+    name = unquote(name)
+    response = wec.send_file(f, name, enterprise_id, application_id, application_secret, touid)
+    if response:
+        # return {"client_status": "success", **response}
+        return response
+    else:
+        raise HTTPException(status_code=500, detail="发送失败，请查看控制台输出")
+
+
+@app.post("/sendcard")
+async def send_card(card: Card):
+    if card.token != tokenV:
+        raise HTTPException(status_code=403, detail="Token错误")
+    touid = card.touid
+    response = wec.send_card(card.title, card.description, card.url, enterprise_id, application_id, application_secret,
+                             card.btntxt, touid)
     if response:
         # return {"client_status": "success", **response}
         return response
