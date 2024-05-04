@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from config import config
 import wecomchan as wec
@@ -46,6 +47,11 @@ async def send_image(image: Image):
     if image.token != token:
         raise HTTPException(status_code=403, detail="Token错误")
     touid = image.touid
+    # 移除Base64编码中的前缀
+    if image.image_base64.startswith("data:image/jpeg;base64,"):
+        image.image_base64 = image.image_base64.replace("data:image/jpeg;base64,", "")
+    elif image.image_base64.startswith("data:image/png;base64,"):
+        image.image_base64 = image.image_base64.replace("data:image/png;base64,", "")
     response = wec.send_image(image.image_base64, enterprise_id, application_id, application_secret, touid)
     if response:
         # return {"client_status": "success", **response}
@@ -65,6 +71,16 @@ async def send_markdown(message: Message):
         return response
     else:
         raise HTTPException(status_code=500, detail="发送失败，请查看控制台输出")
+
+
+# 域名验证相关
+@app.get("/{file_name}")
+async def root(file_name: str):
+    file_path = os.path.join(os.getcwd(), "files", file_name)
+    if os.path.exists(file_path):
+        return FileResponse(file_path)
+    else:
+        raise HTTPException(status_code=404, detail="路径不存在")
 
 
 if __name__ == '__main__':
