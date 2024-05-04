@@ -29,7 +29,7 @@ class Image(BaseModel):
     touid: str = "@all"
 
 
-@app.post("/send_message")
+@app.post("/sendmessage")
 async def send_message(message: Message):
     if message.token != token:
         raise HTTPException(status_code=403, detail="Token错误")
@@ -42,7 +42,7 @@ async def send_message(message: Message):
         raise HTTPException(status_code=500, detail="发送失败，请查看控制台输出")
 
 
-@app.post("/send_image")
+@app.post("/sendimage")
 async def send_image(image: Image):
     if image.token != token:
         raise HTTPException(status_code=403, detail="Token错误")
@@ -60,7 +60,7 @@ async def send_image(image: Image):
         raise HTTPException(status_code=500, detail="发送失败，请检查Base64编码格式是否正确或查看控制台输出")
 
 
-@app.post("/send_markdown")
+@app.post("/sendmarkdown")
 async def send_markdown(message: Message):
     if message.token != token:
         raise HTTPException(status_code=403, detail="Token错误")
